@@ -1,6 +1,10 @@
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.http.Method;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
+import io.restassured.response.ResponseBody;
+import io.restassured.specification.RequestSpecification;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -20,6 +24,20 @@ public class Example {
                 param("test", "test").
                 when().
                 then();
+    }
+
+
+    @Test
+    public void deleteRequest() {
+        RestAssured.baseURI = "https://jsonplaceholder.typicode.com";
+        int response =
+                given()
+                        .header("Content-type", "application/json")
+                        .when()
+                        .delete("/posts/1")
+                        .then()
+                        .extract().statusCode();
+        Assert.assertEquals(200, response);
     }
 
     @Test
@@ -110,6 +128,46 @@ public class Example {
                 extract().
                 response().path("MRData.CircuitTable.Circuits.circuitName[0]");
         System.out.println(name);
+    }
+    @Test
+    public void GetBooksDetails() {
+        // Specify the base URL to the RESTful web service
+        RestAssured.baseURI = "https://demoqa.com/BookStore/v1/Books";
+        // Get the RequestSpecification of the request to be sent to the server.
+        RequestSpecification httpRequest = RestAssured.given();
+        // specify the method type (GET) and the parameters if any.
+        //In this case the request does not take any parameters
+        Response response = httpRequest.request(Method.GET, "");
+        // Print the status and message body of the response received from the server
+        System.out.println("Status received => " + response.getStatusLine());
+        System.out.println("Response=>" + response.prettyPrint());
+    }
+    @Test
+    public void GetBooksDetails1() {
+        given().
+                when().
+                get("https://demoqa.com/BookStore/v1/Books").
+                then().
+                log().all().
+                assertThat().
+                statusCode(200);
+    }
+    @Test
+    public void queryParameter() {
+        //Defining the base URI
+        RestAssured.baseURI= "https://bookstore.toolsqa.com/BookStore/v1";
+        RequestSpecification httpRequest = RestAssured.given();
+        //Passing the resource details
+        Response res = httpRequest.queryParam("ISBN","9781449325862").get("/Book");
+        //Retrieving the response body using getBody() method
+        ResponseBody body = res.body();
+        //Converting the response body to string object
+        String rbdy = body.asString();
+        //Creating object of JsonPath and passing the string response body as parameter
+        JsonPath jpath = new JsonPath(rbdy);
+        //Storing publisher name in a string variable
+        String title = jpath.getString("title");
+        System.out.println("The book title is - "+title);
     }
 
     @Test
